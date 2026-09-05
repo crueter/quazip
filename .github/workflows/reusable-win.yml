@@ -48,6 +48,10 @@ on:
         required: false
         default: "with_flag"
         type: string
+      flavor:
+        required: false
+        default: "both"
+        type: string
     secrets:
       GH_TOKEN:
         required: false
@@ -104,7 +108,16 @@ jobs:
 
       - name: Configure
         shell: cmd
-        run: cmake --preset ${{ inputs.preset }} -DQUAZIP_ENABLE_TESTS=ON
+        run: |
+          if "${{ inputs.flavor }}" == "both" (
+            set "BUILD_FLAGS=-DQUAZIP_BUILD_STATIC=ON -DQUAZIP_BUILD_SHARED=ON"
+          ) else if "${{ inputs.flavor }}" == "shared" (
+            set "BUILD_FLAGS=-DQUAZIP_BUILD_STATIC=OFF -DQUAZIP_BUILD_SHARED=ON"
+          ) else if "${{ inputs.flavor }}" == "static" (
+            set "BUILD_FLAGS=-DQUAZIP_BUILD_STATIC=ON -DQUAZIP_BUILD_SHARED=OFF"
+          )
+
+          cmake --preset ${{ inputs.preset }} -DQUAZIP_ENABLE_TESTS=ON %BUILD_FLAGS%
 
       - name: Build
         shell: cmd
