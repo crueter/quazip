@@ -104,7 +104,9 @@ jobs:
       - name: Install dependencies with Conan
         if: contains(inputs.preset, 'conan')
         shell: cmd
-        run: conan install . -of build -s build_type=Release -o *:shared=False --build=missing ${{ inputs.arch == 'x86' && '-s:h arch=x86' || '' }}
+        run: |
+          conan install . -of build -s build_type=Release -o *:shared=False -c tools.cmake.cmaketoolchain:generator=Ninja ^
+          --build=missing ${{ inputs.arch == 'x86' && '-s:h arch=x86' || '' }}
 
       - name: Configure
         shell: cmd
