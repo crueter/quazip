@@ -105,7 +105,7 @@ jobs:
         if: contains(inputs.preset, 'conan')
         shell: cmd
         run: |
-          conan install . -of build -s build_type=Release -o *:shared=False -c tools.cmake.cmaketoolchain:generator=Ninja ^
+          conan install . -of build -s build_type=Release -o *:shared=False -c ^
           --build=missing ${{ inputs.arch == 'x86' && '-s:h arch=x86' || '' }}
 
       - name: Configure
@@ -119,7 +119,7 @@ jobs:
             set "BUILD_FLAGS=-DQUAZIP_BUILD_STATIC=ON -DQUAZIP_BUILD_SHARED=OFF"
           )
 
-          cmake --preset ${{ inputs.preset }} -DQUAZIP_ENABLE_TESTS=ON %BUILD_FLAGS% -GNinja
+          cmake --preset ${{ inputs.preset }} -DQUAZIP_ENABLE_TESTS=ON %BUILD_FLAGS%
 
       - name: Build
         shell: cmd
@@ -132,7 +132,7 @@ jobs:
 
       - name: Check PE
         shell: bash
-        working-directory: ./build/quazip/Release
+        working-directory: ${{ github.workspace }}/build/quazip/Release
         run: |
           DLL_NAME="quazip1-qt${{ startsWith(inputs.qt_version, '6') && '6' || '5' }}.dll"
           file "$DLL_NAME"
