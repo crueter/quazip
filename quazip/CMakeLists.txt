@@ -71,7 +71,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(${QUAZIP_LIB_TARGET_NAME}_object PRIVATE -Wshadow -Werror=shadow)
 endif()
 
-# set(TO_INSTALL ${QUAZIP_LIB_TARGET_NAME}_object)
+# fix static export defs
+if(NOT QUAZIP_BUILD_SHARED)
+    target_compile_definitions(${QUAZIP_LIB_TARGET_NAME}_object PUBLIC QUAZIP_STATIC)
+endif()
 
 macro(quazip_lib libname)
 target_include_directories(${libname}
