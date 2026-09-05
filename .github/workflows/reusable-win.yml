@@ -105,8 +105,7 @@ jobs:
         if: contains(inputs.preset, 'conan')
         shell: cmd
         run: |
-          conan install . -of build -s build_type=Release -o *:shared=False -c ^
-          --build=missing ${{ inputs.arch == 'x86' && '-s:h arch=x86' || '' }}
+          conan install . -of build -s build_type=Release -o *:shared=False --build=missing ${{ inputs.arch == 'x86' && '-s:h arch=x86' || '' }}
 
       - name: Configure
         shell: cmd
