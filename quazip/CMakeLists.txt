@@ -57,24 +57,41 @@ add_library(${QUAZIP_LIB_TARGET_NAME}_object OBJECT ${QUAZIP_SOURCES})
 
 target_include_directories(${QUAZIP_LIB_TARGET_NAME}_object
     PRIVATE
-    $<BUILD_INTERFACE:${QUAZIP_INC}>
+        $<BUILD_INTERFACE:${QUAZIP_INC}>
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_DIR_NAME}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_INCLUDE_PATH}>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_DIR_NAME}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_INCLUDE_PATH}>)
 
-target_link_libraries(${QUAZIP_LIB_TARGET_NAME}_object PUBLIC ${QUAZIP_LIB_LIBRARIES} ${QUAZIP_LIB})
-
-if(QUAZIP_LBD)
-    target_link_directories(${QUAZIP_LIB_TARGET_NAME}_object PUBLIC ${QUAZIP_LBD})
-endif()
+target_link_libraries(${QUAZIP_LIB_TARGET_NAME}_object
+    PUBLIC ${QUAZIP_LIB_LIBRARIES} ${QUAZIP_LIB})
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(${QUAZIP_LIB_TARGET_NAME}_object PRIVATE -Wshadow -Werror=shadow)
 endif()
 
-set(TO_INSTALL ${QUAZIP_LIB_TARGET_NAME}_object)
+# set(TO_INSTALL ${QUAZIP_LIB_TARGET_NAME}_object)
+
+macro(quazip_lib libname)
+target_include_directories(${libname}
+    PRIVATE
+        $<BUILD_INTERFACE:${QUAZIP_INC}>
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_DIR_NAME}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_INCLUDE_PATH}>)
+
+    if(QUAZIP_LBD)
+        target_link_directories(${libname} PUBLIC ${QUAZIP_LBD})
+    endif()
+
+    target_link_libraries(${libname}
+        PUBLIC ${QUAZIP_LIB_LIBRARIES} ${QUAZIP_LIB})
+
+    list(APPEND TO_INSTALL ${libname})
+endmacro()
 
 ## SHARED ##
 if(QUAZIP_BUILD_SHARED)
@@ -87,11 +104,6 @@ if(QUAZIP_BUILD_SHARED)
     target_compile_definitions(${libname} PRIVATE QUAZIP_BUILD)
     target_compile_definitions(${QUAZIP_LIB_TARGET_NAME}_object PRIVATE QUAZIP_BUILD)
 
-    # inherit include dirs, libs, etc
-    # this is a slight hack, but not really an issue
-    target_link_libraries(${libname}
-        PUBLIC ${QUAZIP_LIB_TARGET_NAME}_object)
-
     set_target_properties(${libname} PROPERTIES
         VERSION ${QUAZIP_LIB_VERSION}
         SOVERSION ${QUAZIP_LIB_SOVERSION}
@@ -101,7 +113,7 @@ if(QUAZIP_BUILD_SHARED)
 
     add_library(QuaZip::QuaZip ALIAS ${libname})
 
-    list(APPEND TO_INSTALL ${libname})
+    quazip_lib(${libname})
 endif()
 
 ## STATIC ##
@@ -111,11 +123,6 @@ if(QUAZIP_BUILD_STATIC)
 
     # consumers should not dllimport
     target_compile_definitions(${libname} PUBLIC QUAZIP_STATIC)
-
-    # inherit include dirs, libs, etc
-    # this is a slight hack, but not really an issue
-    target_link_libraries(${libname}
-        PUBLIC ${QUAZIP_LIB_TARGET_NAME}_object)
 
     set_target_properties(${libname} PROPERTIES
         VERSION ${QUAZIP_LIB_VERSION}
@@ -128,7 +135,7 @@ if(QUAZIP_BUILD_STATIC)
             PUBLIC_HEADER "${QUAZIP_HEADERS}")
     endif()
 
-    list(APPEND TO_INSTALL ${libname})
+    quazip_lib(${libname})
 endif()
 
 ## INSTALL ##

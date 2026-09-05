@@ -178,6 +178,7 @@ if(NOT QUAZIP_QT_ZLIB_USED)
     else()
       find_package(ZLIB REQUIRED)
       set(QUAZIP_LIB_LIBRARIES ${QUAZIP_LIB_LIBRARIES} ZLIB::ZLIB)
+      list(APPEND QUAZIP_INC ${ZLIB_INCLUDE_DIRS})
     endif()
 endif()
 
