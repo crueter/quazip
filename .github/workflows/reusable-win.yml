@@ -117,7 +117,7 @@ jobs:
             set "BUILD_FLAGS=-DQUAZIP_BUILD_STATIC=ON -DQUAZIP_BUILD_SHARED=OFF"
           )
 
-          cmake --preset ${{ inputs.preset }} -DQUAZIP_ENABLE_TESTS=ON %BUILD_FLAGS%
+          cmake --preset ${{ inputs.preset }} -DQUAZIP_ENABLE_TESTS=ON %BUILD_FLAGS% -GNinja
 
       - name: Build
         shell: cmd
