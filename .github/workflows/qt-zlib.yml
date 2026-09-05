@@ -29,6 +29,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Install ninja
+        run: sudo apt-get install -y ninja-build
+
       - name: Configure CMake
         run: |
           cmake -DCMAKE_BUILD_TYPE="${{env.BUILD_TYPE}}" -DBUILD_SHARED_LIBS=OFF -DQUAZIP_ENABLE_TESTS=ON \
@@ -318,7 +321,9 @@ jobs:
         run: nmake install
 
       - name: Configure CMake
-        run: cmake -DCMAKE_BUILD_TYPE="${{env.BUILD_TYPE}}" -DQUAZIP_QT_MAJOR_VERSION=5 -DBUILD_SHARED_LIBS=OFF -DQUAZIP_ENABLE_TESTS=ON -DQUAZIP_USE_QT_ZLIB=ON -B build -DCMAKE_PREFIX_PATH="${{github.workspace}}\Qt"
+        run: |
+          cmake -DCMAKE_BUILD_TYPE="${{env.BUILD_TYPE}}" -DQUAZIP_QT_MAJOR_VERSION=5 -DBUILD_SHARED_LIBS=OFF -DQUAZIP_ENABLE_TESTS=ON \
+            -DQUAZIP_USE_QT_ZLIB=ON -B build -DCMAKE_PREFIX_PATH="${{github.workspace}}\Qt" -GNinja
 
       - name: Build
         run: cmake --build build --config ${{env.BUILD_TYPE}}
