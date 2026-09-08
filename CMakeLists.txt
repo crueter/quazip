@@ -12,6 +12,7 @@ endif()
 project(QuaZip VERSION 1.7.2)
 
 include(cmake/clone-repo.cmake)
+include(CMakeDependentOption)
 
 set(QUAZIP_LIB_VERSION ${QuaZip_VERSION})
 set(QUAZIP_LIB_SOVERSION ${QuaZip_VERSION_MAJOR}.${QuaZip_VERSION_MINOR})
@@ -27,14 +28,19 @@ if (NOT DEFINED BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS ${MASTER_PROJECT})
 endif()
 
+# default to only building the specific library type requested by
+# BUILD_SHARED_LIBS, this should generally be ON for top-level builds
+# and OFF for submodule/subproject builds
 if (BUILD_SHARED_LIBS)
     set(static_default OFF)
 else()
     set(static_default ON)
 endif()
 
-option(QUAZIP_BUILD_SHARED "Build QuaZip as a shared library" ${BUILD_SHARED_LIBS})
-option(QUAZIP_BUILD_STATIC "Build QuaZip as a static library" ${static_default})
+cmake_dependent_option(QUAZIP_BUILD_SHARED "Build QuaZip as a shared library"
+    ${BUILD_SHARED_LIBS} "NOT EMSCRIPTEN" OFF)
+cmake_dependent_option(QUAZIP_BUILD_STATIC "Build QuaZip as a static library"
+    ${static_default} "NOT EMSCRIPTEN" ON)
 
 # avoid conflict b/t dll import lib and static lib on MSVC
 if(CMAKE_STATIC_LIBRARY_PREFIX STREQUAL "" AND
