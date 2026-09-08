@@ -61,9 +61,7 @@ target_include_directories(${QUAZIP_LIB_TARGET_NAME}_object
         $<BUILD_INTERFACE:${QUAZIP_INC}>
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_DIR_NAME}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_INCLUDE_PATH}>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>)
 
 target_link_libraries(${QUAZIP_LIB_TARGET_NAME}_object
     PUBLIC ${QUAZIP_LIB_LIBRARIES} ${QUAZIP_LIB})
@@ -73,19 +71,15 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         PRIVATE -Wshadow -Werror=shadow)
 endif()
 
-# fix static export defs
+# don't dllexport unless building shared
 if(NOT QUAZIP_BUILD_SHARED)
     target_compile_definitions(${QUAZIP_LIB_TARGET_NAME}_object
-        PUBLIC QUAZIP_STATIC)
+        PRIVATE QUAZIP_STATIC)
 endif()
 
+# commonalities between shared and static
 macro(quazip_lib libname)
-target_include_directories(${libname}
-    PRIVATE
-        $<BUILD_INTERFACE:${QUAZIP_INC}>
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    target_include_directories(${libname} PUBLIC
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_DIR_NAME}>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${QUAZIP_INCLUDE_PATH}>)
 
@@ -136,7 +130,6 @@ if(QUAZIP_BUILD_STATIC)
     target_compile_definitions(${libname} PUBLIC QUAZIP_STATIC)
 
     set_target_properties(${libname} PROPERTIES
-        VERSION ${QUAZIP_LIB_VERSION}
         OUTPUT_NAME ${QUAZIP_LIB_FILE_NAME}${QUAZIP_STATIC_SUFFIX})
 
     if(QUAZIP_BUILD_SHARED)

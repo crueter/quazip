@@ -23,7 +23,7 @@ if (EMSCRIPTEN)
 endif()
 
 # If BUILD_SHARED_LIBS is undefined, set it based on whether
-# we the top-level project or a subproject
+# we are the top-level project or a subproject
 if (NOT DEFINED BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS ${MASTER_PROJECT})
 endif()
@@ -161,8 +161,12 @@ if(QUAZIP_QT_ZLIB_USED AND QUAZIP_QT_ZLIB_COMPONENT STREQUAL BundledZLIB)
   add_compile_definitions(Z_PREFIX)
 endif()
 
-if(NOT QUAZIP_QT_ZLIB_USED)
+set(QUAZIP_DEP)
+set(QUAZIP_INC)
+set(QUAZIP_LIB)
+set(QUAZIP_LBD)
 
+if(NOT QUAZIP_QT_ZLIB_USED)
     if(EMSCRIPTEN)
       if(NOT DEFINED ZLIB_LIBRARY)
         message(WARNING "ZLIB_LIBRARY is not set")
@@ -191,11 +195,6 @@ endif()
 if (ZLIB_CONST)
     add_compile_definitions(ZLIB_CONST)
 endif()
-
-set(QUAZIP_DEP)
-set(QUAZIP_INC)
-set(QUAZIP_LIB)
-set(QUAZIP_LBD)
 
 if(QUAZIP_BZIP2)
     # Check if bzip2 is present
