@@ -186,14 +186,14 @@ if(NOT QUAZIP_QT_ZLIB_USED)
     endif()
 endif()
 
+if (ZLIB_CONST)
+    add_compile_definitions(ZLIB_CONST)
+endif()
+
 set(QUAZIP_DEP)
 set(QUAZIP_INC)
 set(QUAZIP_LIB)
 set(QUAZIP_LBD)
-
-if (ZLIB_CONST)
-    add_compile_definitions(ZLIB_CONST)
-endif()
 
 if(QUAZIP_BZIP2)
     # Check if bzip2 is present
